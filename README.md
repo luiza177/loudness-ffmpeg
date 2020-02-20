@@ -1,8 +1,8 @@
 # M4A Conversion Shell Scripts
 
-Shell scripts to analyze and output EBU R 128 Loudness information of WAV and M4A files. 
+Shell scripts to analyze and output **EBU R 128** Loudness information of WAV and M4A files. 
 
-> Only tested on MacOS as of this writing
+> **Only tested on MacOS as of this writing**
 
 ### Upcoming:
 * Loudness normalize audio files.
