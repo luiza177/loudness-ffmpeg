@@ -1,20 +1,6 @@
 #!/bin/bash
 
-output_info() {
-  integrated="$(awk '/Input Integrated:/ { print $3 }' "$1")"
-  lra="$(awk '/Input LRA:/ { print $3 }' "$1")"
-  truepeak="$(awk '/Input True Peak:/ { print $4 }' "$1")"
-  
-  
-  echo -e "    Integrated  =  ${integrated} LUFS"
-  echo -e "    True Peak   =  ${truepeak} dBTP"
-  echo -e "    LRA         =   ${lra}"
-}
-
-OUTPUT_FOLDER="Normalized"
-if [ ! -d "${OUTPUT_FOLDER}" ]; then
-    mkdir "${OUTPUT_FOLDER}"
-fi
+OUTPUT_FOLDER_NAME="Normalized"
 
 SAVEIFS="${IFS}"
 IFS=$(echo -en "\n\b")
@@ -31,27 +17,28 @@ for file in $files; do
   dir_display=$(basename "$dir")
   echo "${dir_display}/${base}:"
 
-  output="${OUTPUT_FOLDER}/${base}"
+  output_folder="${dir}/${OUTPUT_FOLDER_NAME}/"
+  output="${output_folder}/${base}"
+  if [ ! -d "${output_folder}" ]; then
+    mkdir "${output_folder}"
+  fi
 
-  ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=false:print_format=summary -f null - 2> $temp_file
+  # TODO: think about what to do with dual_mono
+  ffmpeg -i "$file" -hide_banner -af loudnorm=I=-16:TP=-3.0:dual_mono=true:print_format=summary -f null - 2> "$temp_file"
 
-  echo "  Input:"
-  # ouput_info "$file"
+  # echo "  Input:"
 
-  # TODO: replace with function
   integrated="$(awk '/Input Integrated:/ { print $3 }' "$temp_file")"
-  lra="$(awk '/Input LRA:/ { print $3 }' $temp_file)"
-  truepeak="$(awk '/Input True Peak:/ { print $4 }' $temp_file)"
+  lra="$(awk '/Input LRA:/ { print $3 }' "$temp_file")"
+  truepeak="$(awk '/Input True Peak:/ { print $4 }' "$temp_file")"
   
-  echo -e "    Integrated  =  ${integrated} LUFS"
-  echo -e "    True Peak   =  ${truepeak} dBTP"
-  echo -e "    LRA         =   ${lra}"
+  # echo -e "    Integrated  =  ${integrated} LUFS"
+  # echo -e "    True Peak   =  ${truepeak} dBTP"
+  # echo -e "    LRA         =   ${lra}"
 
-  # what is log level panic?
-  ffmpeg -i "$file" -loglevel panic -af loudnorm=I=-16:TP=-3.0:LRA=11:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:offset=-0.3:linear=true:print_format=summary "$output" 2> $temp_file
+  ffmpeg -i "$file" -hide_banner -loglevel warning -af "loudnorm=I=-16:TP=-3.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:offset=-0.3:linear=true:print_format=summary" -ar 44100 "$output"  #2> "$temp_file"
 
   # echo "  Output:"
-  # output_info "$ouput"
 
   rm "$temp_file"
 done
