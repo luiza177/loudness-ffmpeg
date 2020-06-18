@@ -1,2 +1,5 @@
 test/
 .DS_Store
+
+*.m4a
+*.wav
