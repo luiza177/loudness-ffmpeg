@@ -15,7 +15,7 @@ for file in $files; do
   dir=$(basename "$dir")
   echo "${dir}/${base}:"
 
-  ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=false:print_format=summary -f null - 2> $temp_file
+  ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=false:print_format=summary -f null - -o $temp_file
 
   integrated="$(awk '/Input Integrated:/ { print $3, $4 }' "$temp_file")"
   lra="$(awk '/Input LRA:/ { print $3, $4 }' $temp_file)"

@@ -98,11 +98,15 @@ for file in $files; do
   fi 
   echo -e "    True Peak   =  ${truepeak} dBTP"
 
+  if [ ${truepeak:0:1} == "+" ]; then
+    truepeak=${truepeak##+}
+  fi
+
   # bc -l returns 0 or 1
   if [ $(echo "$integrated > -15.2" | bc -l) -eq 1 ] || [ $(echo  "$integrated < -16.8" | bc -l) -eq 1 ] || [ $(echo  "$truepeak > -2.5" | bc -l) -eq 1 ]; then 
     COMMAND="ffmpeg -i \"$file\" -hide_banner -loglevel fatal -af \"loudnorm=I=-16:TP=-3.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary\" -ar 44100 "
     if [ ${file:(-3)} == "m4a" ]; then 
-      COMMAND+="-ab 128000 "
+      COMMAND+="-ab 128000 -movflags +faststart"
     fi
     COMMAND+="\"$output\""
     # ffmpeg -i "$file" -hide_banner -loglevel warning -af "loudnorm=I=-16:TP=-3.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary" -ar 44100 "$output"  #2> "$temp_file"
