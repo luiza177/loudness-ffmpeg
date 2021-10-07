@@ -72,10 +72,10 @@ for file in $files; do
 
   if [ -n "$OUTPUT_FOLDER" ]; then
     output_folder="${OUTPUT_FOLDER}/"
-    output="${OUTPUT_FOLDER}/${base}"
+    output="${OUTPUT_FOLDER}${base}"
   else
     output_folder="${dir}/${OUTPUT_FOLDER_NAME}/"
-    output="${output_folder}/${base}"
+    output="${output_folder}${base}"
   fi
 
   if [ ! -d "${output_folder}" ]; then
@@ -103,13 +103,13 @@ for file in $files; do
   fi
 
   # bc -l returns 0 or 1
-  if [ $(echo "$integrated > -15.2" | bc -l) -eq 1 ] || [ $(echo  "$integrated < -16.8" | bc -l) -eq 1 ] || [ $(echo  "$truepeak > -2.5" | bc -l) -eq 1 ]; then 
+  if [ $(echo "$integrated > -15.2" | bc -l) -eq 1 ] || [ $(echo  "$integrated < -16.8" | bc -l) -eq 1 ] || [ $(echo  "$truepeak > -2.8" | bc -l) -eq 1 ]; then 
     COMMAND="ffmpeg -i \"$file\" -hide_banner -loglevel fatal -af \"loudnorm=I=-16:TP=-3.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary\" -ar 44100 "
     if [ ${file:(-3)} == "m4a" ]; then 
-      COMMAND+="-ab 128000 -movflags +faststart"
+      COMMAND+="-ab 128000 -movflags +faststart "
     fi
     COMMAND+="\"$output\""
-    # ffmpeg -i "$file" -hide_banner -loglevel warning -af "loudnorm=I=-16:TP=-3.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary" -ar 44100 "$output"  #2> "$temp_file"
+    # ffmpeg -i "$file" -hide_banner -loglevel warning -af "loudnorm=I=-16:TP=-1.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary" -ar 44100 "$output"  #2> "$temp_file"
     eval "$COMMAND" 
     echo "    --> done."
     echo ""
