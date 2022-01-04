@@ -15,14 +15,15 @@ for file in $files; do
   dir=$(basename "$dir")
   echo "${dir}/${base}:"
 
-  ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=false:print_format=summary -f null - -o $temp_file
-  # ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=true:print_format=summary -f null - -o $temp_file
+  # ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=false:print_format=summary -f null - 2> $temp_file
+  ffmpeg -i "$file" -af loudnorm=I=-16:TP=-3.0:dual_mono=true:print_format=summary -f null - 2> $temp_file
 
-  integrated="$(awk '/Input Integrated:/ { print $3, $4 }' "$temp_file")"
-  lra="$(awk '/Input LRA:/ { print $3, $4 }' $temp_file)"
-  truepeak="$(awk '/Input True Peak:/ { print $4, $5 }' $temp_file)"
+  integrated="$(awk '/Input Integrated:/ { print $3 }' "$temp_file")" #formerly { print $3, $4 } to include the unit
+  lra="$(awk '/Input LRA:/ { print $3 }' $temp_file)"
+  truepeak="$(awk '/Input True Peak:/ { print $4 }' $temp_file)"
+  plr=$(bc -l <<< "${truepeak}-(${integrated})")
   
-  echo -e "  Integrated  =  ${integrated}\n  True Peak   =  ${truepeak}\n  LRA         =   ${lra}"
+  echo -e "  Integrated  =  ${integrated} LUFS\n  True Peak   =  ${truepeak} dBTP\n  LRA         =   ${lra} LU\n  PLR         =   ${plr}"
 
   rm "$temp_file"
 done
