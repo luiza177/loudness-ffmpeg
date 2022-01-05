@@ -4,7 +4,7 @@
 
 MANUAL="limitnorm.sh script manual:
 
-    FFMPEG-based EBU-R128 batch loudness normalization to -16 LUFS (+/- 1 LU), -3.0 dBTP for WAV and M4A files.
+    FFMPEG-based batch loudness normalization to -16 LUFS (+/- 1 LU), -3.0 dBTP for WAV and M4A files. Uses a DAW-like limiter approach.
 
     USAGE:
 
@@ -91,9 +91,6 @@ for file in $files; do
   thresh="$(awk '/Input Threshold:/ { print $3 }' "$temp_file")"
   channels="$(awk -F', ' '/Stream #0:0/ { print $3; exit }' "$temp_file")"
 
-  plr=$(bc -l <<< "${truepeak}-(${integrated})")
-
-  #**************** PRINT ANALYSIS *****************
   if [ "$channels" == "mono" ]; then
     echo -e "    Integrated  =  ${integrated} LUFS (dual mono)"
   else
@@ -105,6 +102,8 @@ for file in $files; do
     truepeak=${truepeak##+}
   fi
 
+  plr=$(bc -l <<< "${truepeak}-(${integrated})")
+  
   echo -e "    PLR         =  ${plr}"
 
   #**************** NORMALIZE ******************
