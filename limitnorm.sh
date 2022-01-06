@@ -108,7 +108,6 @@ for file in $files; do
 
   #**************** NORMALIZE ******************
   # bc -l returns 0 or 1
-  # if [ $(echo "$integrated > -15.2" | bc -l) -eq 1 ] || [ $(echo  "$integrated < -16.8" | bc -l) -eq 1 ] || [ $(echo  "$truepeak > -2.6" | bc -l) -eq 1 ]; then 
   if [ $(echo "$integrated > -15.2" | bc -l) -eq 1 ] || [ $(echo  "$integrated < -16.8" | bc -l) -eq 1 ] || [ $(echo  "$truepeak > -2.6" | bc -l) -eq 1 ]; then 
     COMMAND="ffmpeg -i \"$file\" -hide_banner -loglevel fatal -af "
 
@@ -127,7 +126,6 @@ for file in $files; do
     COMMAND+="\"$output\""
     # ffmpeg -i "$file" -hide_banner -loglevel warning -af "loudnorm=I=-16:TP=-1.0:dual_mono=true:measured_I=${integrated}:measured_TP=${truepeak}:measured_LRA=${lra}:measured_thresh=${thresh}:linear=true:print_format=summary" -ar 44100 "$output"  #2> "$temp_file"
     eval "$COMMAND" 
-    # echo "$COMMAND" 
     echo "    --> done."
     echo ""
   else
