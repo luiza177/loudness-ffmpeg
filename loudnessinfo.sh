@@ -21,7 +21,10 @@ for file in $files; do
   integrated="$(awk '/Input Integrated:/ { print $3 }' "$temp_file")" #formerly { print $3, $4 } to include the unit
   lra="$(awk '/Input LRA:/ { print $3 }' $temp_file)"
   truepeak="$(awk '/Input True Peak:/ { print $4 }' $temp_file)"
-  plr=$(bc -l <<< "${truepeak}-(${integrated})")
+  if [ ${truepeak:0:1} == "+" ]; then
+    tpval=${truepeak##+}
+  fi
+  plr=$(bc -l <<< "${tpval}-(${integrated})")
   
   echo -e "  Integrated  =  ${integrated} LUFS\n  True Peak   =  ${truepeak} dBTP\n  LRA         =   ${lra} LU\n  PLR         =   ${plr}"
 
